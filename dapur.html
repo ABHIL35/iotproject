@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PROJECT IOT - DAPUR</title>
+  <style>
+    *, html {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    .layout {
+      max-width: 476px;
+      border: 2px solid black;
+      margin: auto;
+      height: 100vh;
+      font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+      position: relative;
+    }
+
+    .navigasi {
+      text-align: center;
+      background-color: #0e57cdf7;
+      padding: 8px;
+    }
+
+    .navigasi-ruangan {
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 70px);
+      overflow: auto;
+      padding: 16px;
+      gap: 16px;
+    }
+
+    .items {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 8px;
+      box-shadow: 0px 0px 4px 1px;
+      border-radius: 10px;
+      align-items: center;
+    }
+
+    .gambar {
+      width: 50%;
+    }
+
+    .tombol {
+      padding: 4px 8px;
+      background-color: #0e57cdf7;
+      border-radius: 10px;
+      width: 100%;
+      color: white;
+      cursor: pointer;
+      border: none;
+    }
+
+    .judul {
+      color: white;
+      font-weight: bold;
+    }
+
+    .bawah {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background-color: #0e57cdf7;
+    }
+
+    .bawah ul {
+      display: flex;
+      list-style-type: none;
+      padding: 8px;
+    }
+
+    .bawah ul li {
+      margin: auto;
+      font-size: small;
+    }
+
+    .bawah ul li a {
+      text-decoration: none;
+      color: white;
+      display: inline-block;
+      transition: transform 0.5s ease;
+    }
+
+    .bawah ul li a:hover {
+      transform: scale(1.5);
+      color: black;
+    }
+
+    canvas {
+      width: 100% !important;
+      max-width: 100%;
+      height: 200px !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <section class="navigasi">
+      <h3 class="judul">PROJECT IOT</h3>
+    </section>
+    <section class="navigasi-ruangan">
+      <h3 style="text-align: center;">DAPUR</h3>
+
+      <div class="items">
+        <img src="lampu/bulb.png" class="gambar" id="GambarDapur"/>
+        <p>LAMPU</p>
+        <button class="tombol" id="dapur" onclick="Dapur()">NYALAKAN</button>
+      </div>
+
+      <div class="items">
+        <img src="asset/gas.png" class="gambar"/>
+        <p>Sensor Gas: <span id="nilaiGas">Memuat...</span> ppm</p>
+      </div>
+
+      <div class="items">
+        <p>Grafik Sensor Gas</p>
+        <canvas id="grafikGas"></canvas>
+      </div>
+    </section>
+
+    <section class="bawah">
+      <ul>
+        <li><a href="index.html">HOME</a></li>
+        <li><a href="ruangtamu.html">RUANG TAMU</a></li>
+        <li><a href="kamarmandi.html">KAMAR MANDI</a></li>
+        <li><a href="dapur.html" style="background-color: white; color: #0e57cdf7; font-weight: bolder; padding-block: 8px; border-radius: 8px;">DAPUR</a></li>
+        <li><a href="kamar.html">KAMAR</a></li>
+      </ul>
+    </section>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCd-n2jOJl2BRiTrQ7aVF_WyQdUEalQW2c",
+      authDomain: "iot-project-151bc.firebaseapp.com",
+      databaseURL: "https://iot-project-151bc-default-rtdb.firebaseio.com",
+      projectId: "iot-project-151bc",
+      storageBucket: "iot-project-151bc.appspot.com",
+      messagingSenderId: "592260284342",
+      appId: "1:592260284342:web:2c2b208539f7c9f5a14b17"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    // Sensor Gas
+    const gasRef = ref(database, "Hasil_Pembacaan/gas");
+    let nilaiGas = 0;
+    let chart, dataChart;
+
+    onValue(gasRef, (snapshot) => {
+      nilaiGas = snapshot.exists() ? snapshot.val() : 0;
+      document.getElementById("nilaiGas").innerText = nilaiGas;
+      updateGrafik(nilaiGas);
+    });
+
+    // Kontrol Lampu
+    let statusLampu = false;
+
+    window.Dapur = function() {
+      statusLampu = !statusLampu;
+      set(ref(database, "lampu/dapur"), statusLampu ? 1 : 0)
+        .then(() => {
+          document.getElementById("dapur").innerText = statusLampu ? "MATIKAN" : "NYALAKAN";
+          document.getElementById("GambarDapur").src = statusLampu ? "lampu/lightbulb-on.png" : "lampu/bulb.png";
+        });
+    };
+
+    onValue(ref(database, "lampu/dapur"), (snapshot) => {
+      const val = snapshot.exists() ? snapshot.val() : 0;
+      statusLampu = val === 1;
+      document.getElementById("dapur").innerText = statusLampu ? "MATIKAN" : "NYALAKAN";
+      document.getElementById("GambarDapur").src = statusLampu ? "lampu/lightbulb-on.png" : "lampu/bulb.png";
+    });
+
+    // Grafik Gas
+    function buatGrafik() {
+      const ctx = document.getElementById("grafikGas").getContext("2d");
+      dataChart = {
+        labels: [],
+        datasets: [{
+          label: 'Gas (ppm)',
+          data: [],
+          backgroundColor: 'rgba(14, 87, 205, 0.3)',
+          borderColor: 'rgba(14, 87, 205, 1)',
+          borderWidth: 2,
+          fill: true,
+          tension: 0.4
+        }]
+      };
+
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: dataChart,
+        options: {
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      });
+    }
+
+    function updateGrafik(n) {
+      const waktu = new Date().toLocaleTimeString();
+      if (dataChart.labels.length >= 20) {
+        dataChart.labels.shift();
+        dataChart.datasets[0].data.shift();
+      }
+      dataChart.labels.push(waktu);
+      dataChart.datasets[0].data.push(n);
+      chart.update();
+    }
+
+    window.addEventListener("DOMContentLoaded", buatGrafik);
+  </script>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+</html>
