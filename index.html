@@ -36,10 +36,18 @@
 
     .mic-button {
       font-size: 24px;
-      color: white;
+      color: #0e57cd;
       background-color: transparent;
       border: none;
       cursor: pointer;
+      z-index: 10;
+      padding: 4px;
+      border-radius: 50%;
+      transition: background-color 0.3s ease;
+    }
+
+    .mic-button.active {
+      background-color: white;
     }
 
     .navigasi-ruangan {
@@ -111,7 +119,7 @@
   <div class="layout">
     <section class="navigasi">
       <h3 class="judul">SISTEM RUMAH PINTAR</h3>
-      <button class="mic-button" onclick="startVoiceCommand()">🎙️</button>
+      <button id="micBtn" class="mic-button" onclick="startVoiceCommand()">🎙️</button>
     </section>
 
     <section class="navigasi-ruangan">
@@ -190,16 +198,34 @@
       });
     }
 
+    let recognition;
+    let isListening = false;
+
     window.startVoiceCommand = function () {
-      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      const micBtn = document.getElementById("micBtn");
+      window.speechSynthesis.cancel();
+
+      if (isListening && recognition) {
+        recognition.stop();
+        micBtn.classList.remove("active");
+        isListening = false;
+        return;
+      }
+
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new SpeechRecognition();
       recognition.lang = "id-ID";
       recognition.interimResults = false;
       recognition.maxAlternatives = 1;
 
       recognition.start();
-      speak("Halo ada yang bisa saya bantu?");
+      isListening = true;
+      micBtn.classList.add("active");
+      speak("Halo, ada yang bisa saya bantu?");
 
       recognition.onresult = (event) => {
+        micBtn.classList.remove("active");
+        isListening = false;
         const command = event.results[0][0].transcript.toLowerCase();
         console.log("Perintah:", command);
 
@@ -236,7 +262,7 @@
         } else if (command.includes("status kelembaban")) {
           getSensorData((data) => {
             const kelembaban = parseFloat(data.kelembaban).toFixed(1).replace(".", " koma ");
-            speak(`Kelembapan ruangan saat ini ${kelembaban} persen`);
+            speak(`Kelembaban ruangan saat ini ${kelembaban} persen`);
           });
         } else if (command.includes("status suhu")) {
           getSensorData((data) => {
@@ -248,32 +274,34 @@
             const gas = parseFloat(data.gas).toFixed(1).replace(".", " koma ");
             speak(`Gas saat ini ${gas} ppm`);
           });
-        } else if (command.includes("petunjuk penggunaan") || command.includes("ulangi")){
+        } else if (command.includes("petunjuk penggunaan") || command.includes("ulangi")) {
           speak("Petunjuk penggunaan adalah sebagai berikut:");
-          speak("ucapkan nyalakan lampu ruang tamu untuk menyalakan lampu ruang tamu");
-          speak("ucapkan matikan lampu ruang tamu untuk mematikan lampu ruang tamu");
-          speak("ucapkan nyalakan lampu kamar mandi untuk menyalakan lampu kamar mandi");
-          speak("ucapkan matikan lampu kamar mandi untuk mematikan lampu kamar mandi");
-          speak("ucapkan nyalakan lampu dapur untuk menyalakan lampu dapur");
-          speak("ucapkan matikan lampu dapur untuk mematikan lampu dapur");
-          speak("ucapkan nyalakan lampu kamar untuk menyalakan lampu kamar"); 
-          speak("ucapkan matikan lampu kamar untuk mematikan lampu kamar");
-          speak("ucapkan nyalakan semua lampu untuk menyalakan semua lampu");
-          speak("ucapkan matikan semua lampu untuk mematikan semua lampu");
-          speak("ucapkan status kelembaban untuk mengetahui kelembaban ruangan");
-          speak("ucapkan status suhu untuk mengetahui suhu ruangan");
-          speak("ucapkan status gas untuk mengetahui kadar gas di dapur");
-          speak("sekian terimakasih, untuk lebih jelas ucapkan ulangi")
-        } else if (command.includes("halo") || command.includes("hai") || command.includes("woi")) {
-          speak("Halo! Saya asisten rumah pintar Anda. Ucapkan petunjuk penggunaan untuk informasi selengkapnya.");
+          speak("Katakan nyalakan lampu ruang tamu untuk menyalakan lampu ruang tamu");
+          speak("Katakan matikan lampu ruang tamu untuk mematikan lampu ruang tamu");
+          speak("Katakan nyalakan lampu kamar mandi untuk menyalakan lampu kamar mandi");
+          speak("Katakan matikan lampu kamar mandi untuk mematikan lampu kamar mandi");
+          speak("Katakan nyalakan lampu dapur untuk menyalakan lampu dapur");
+          speak("Katakan matikan lampu dapur untuk mematikan lampu dapur");
+          speak("Katakan nyalakan lampu kamar untuk menyalakan lampu kamar"); 
+          speak("Katakan matikan lampu kamar untuk mematikan lampu kamar");
+          speak("Katakan nyalakan semua lampu untuk menyalakan semua lampu ruangan");
+          speak("Katakan matikan semua lampu untuk mematikan semua lampu ruangan");
+          speak("Katakan status kelembaban untuk mengetahui kelembaban ruangan");
+          speak("Katakan status suhu untuk mengetahui suhu ruangan");
+          speak("Katakan status gas untuk mengetahui kadar gas di dapur");
+          speak("sekian terimakasih, untuk lebih jelas katakan ulangi")
+        } else if (command.includes("halo") || command.includes("hai")) {
+          speak("Halo! Saya asisten rumah pintar Anda. Katakan petunjuk penggunaan untuk informasi selengkapnya.");
         } else {
-          speak("Maaf, perintah tidak dikenali");
+          speak("Maaf, perintah tidak dikenali, coba katakan hai atau halo");
         }
       };
 
       recognition.onerror = (e) => {
+        micBtn.classList.remove("active");
+        isListening = false;
         console.error(e);
-        speak("Terjadi kesalahan dalam pengenalan suara");
+        speak("Terjadi kesalahan saat mendengarkan suara");
       };
     };
   </script>
