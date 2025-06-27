@@ -4,132 +4,114 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>MENU UTAMA</title>
- <style>
-  *, html {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
+  <style>
+    *, html {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-  .layout {
-    max-width: 476px;
-    border: 2px solid black;
-    margin: auto;
-    height: 100vh;
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-    position: relative;
-  }
+    .layout {
+      max-width: 476px;
+      border: 2px solid black;
+      margin: auto;
+      height: 100vh;
+      font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+      position: relative;
+    }
 
-  .navigasi {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background-color: #0e57cdf7;
-    padding: 8px 16px;
-  }
+    .navigasi {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #0e57cdf7;
+      padding: 8px 16px;
+    }
 
-  .judul {
-    color: white;
-    font-weight: bold;
-    font-size: 18px;
-  }
+    .judul {
+      color: white;
+      font-weight: bold;
+      font-size: 18px;
+    }
 
-  .mic-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-  }
+    .mic-button {
+      font-size: 24px;
+      color: white;
+      background-color: transparent;
+      border: none;
+      cursor: pointer;
+    }
 
-  .mic-button img {
-    width: 24px;
-  }
+    .navigasi-ruangan {
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 70px);
+      overflow: auto;
+      padding: 16px;
+      gap: 16px;
+    }
 
-  .navigasi-ruangan {
-    display: flex;
-    flex-direction: column;
-    height: calc(100vh - 70px);
-    overflow: auto;
-    padding: 16px;
-    gap: 16px;
-  }
+    .items {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 8px;
+      box-shadow: 0px 0px 4px 1px;
+      border-radius: 10px;
+      align-items: center;
+    }
 
-  .items {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 8px;
-    box-shadow: 0px 0px 4px 1px;
-    border-radius: 10px;
-    align-items: center;
-  }
+    .gambar {
+      width: 50%;
+    }
 
-  .gambar {
-    width: 50%;
-  }
+    .tombol {
+      padding: 4px 8px;
+      background-color: #0e57cdf7;
+      border-radius: 10px;
+      width: 100%;
+      color: white;
+      cursor: pointer;
+      border: none;
+    }
 
-  .tombol {
-    padding: 4px 8px;
-    background-color: #0e57cdf7;
-    border-radius: 10px;
-    width: 100%;
-    color: white;
-    cursor: pointer;
-    border: none;
-  }
+    .bawah {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background-color: #0e57cdf7;
+    }
 
-  .bawah {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background-color: #0e57cdf7;
-  }
+    .bawah ul {
+      display: flex;
+      list-style-type: none;
+      padding: 8px;
+    }
 
-  .bawah ul {
-    display: flex;
-    list-style-type: none;
-    padding: 8px;
-  }
+    .bawah ul li {
+      margin: auto;
+      font-size: small;
+    }
 
-  .bawah ul li {
-    margin: auto;
-    font-size: small;
-  }
+    .bawah ul li a {
+      text-decoration: none;
+      color: white;
+      display: inline-block;
+      transition: transform 0.5s ease;
+    }
 
-  .bawah ul li a {
-    text-decoration: none;
-    color: white;
-    display: inline-block;
-    transition: transform 0.5s ease;
-  }
-
-  .bawah ul li a:hover {
-    transform: scale(1.5);
-    color: black;
-  }
-
-  canvas {
-    width: 100% !important;
-    max-width: 100%;
-    height: 200px !important;
-  }
-
-  .mic-button {
-    font-size: 24px;
-    color: white;
-    background-color: transparent;
-    border: none;
-    cursor: pointer;
-  }
-</style>
+    .bawah ul li a:hover {
+      transform: scale(1.5);
+      color: black;
+    }
+  </style>
 </head>
 <body>
   <div class="layout">
     <section class="navigasi">
       <h3 class="judul">SISTEM RUMAH PINTAR</h3>
-      <button class="mic-button" onclick="startVoiceCommand()">
-        🎙️
-      </button>
+      <button class="mic-button" onclick="startVoiceCommand()">🎙️</button>
     </section>
 
     <section class="navigasi-ruangan">
@@ -215,7 +197,7 @@
       recognition.maxAlternatives = 1;
 
       recognition.start();
-      speak("Silakan ucapkan perintah");
+      speak("Halo ada yang bisa saya bantu?");
 
       recognition.onresult = (event) => {
         const command = event.results[0][0].transcript.toLowerCase();
@@ -266,6 +248,24 @@
             const gas = parseFloat(data.gas).toFixed(1).replace(".", " koma ");
             speak(`Gas saat ini ${gas} ppm`);
           });
+        } else if (command.includes("petunjuk penggunaan") || command.includes("ulangi")){
+          speak("Petunjuk penggunaan adalah sebagai berikut:");
+          speak("ucapkan nyalakan lampu ruang tamu untuk menyalakan lampu ruang tamu");
+          speak("ucapkan matikan lampu ruang tamu untuk mematikan lampu ruang tamu");
+          speak("ucapkan nyalakan lampu kamar mandi untuk menyalakan lampu kamar mandi");
+          speak("ucapkan matikan lampu kamar mandi untuk mematikan lampu kamar mandi");
+          speak("ucapkan nyalakan lampu dapur untuk menyalakan lampu dapur");
+          speak("ucapkan matikan lampu dapur untuk mematikan lampu dapur");
+          speak("ucapkan nyalakan lampu kamar untuk menyalakan lampu kamar"); 
+          speak("ucapkan matikan lampu kamar untuk mematikan lampu kamar");
+          speak("ucapkan nyalakan semua lampu untuk menyalakan semua lampu");
+          speak("ucapkan matikan semua lampu untuk mematikan semua lampu");
+          speak("ucapkan status kelembaban untuk mengetahui kelembaban ruangan");
+          speak("ucapkan status suhu untuk mengetahui suhu ruangan");
+          speak("ucapkan status gas untuk mengetahui kadar gas di dapur");
+          speak("sekian terimakasih, untuk lebih jelas ucapkan ulangi")
+        } else if (command.includes("halo") || command.includes("hai") || command.includes("woi")) {
+          speak("Halo! Saya asisten rumah pintar Anda. Ucapkan petunjuk penggunaan untuk informasi selengkapnya.");
         } else {
           speak("Maaf, perintah tidak dikenali");
         }
