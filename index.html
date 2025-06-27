@@ -245,7 +245,7 @@
           speak("Lampu kamar dimatikan");
         } else if (command.includes("kelembaban ruangan")) {
           getSensorData((data) => {
-            const kelembaban = parseFloat(data.kelembaban).toFixed(1);
+            const kelembaban = parseFloat(data.kelembaban).toFixed(1).replace(".", " koma ");
             speak(`Kelembapan ruangan saat ini ${kelembaban} persen`);
           });
         } else if (command.includes("suhu ruangan")) {
